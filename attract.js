@@ -34,6 +34,9 @@ const MOBILE_MIN_DIST_X_RATIO = 0.18; // クラスター間 最小距離(横)
 const MOBILE_MIN_DIST_Y_RATIO = 0.18; // クラスター間 最小距離(縦)
 const MOBILE_MAX_CLUSTERS = 3;        // スマホ時は束の数を抑える
 
+let framesToDraw = 400;   // 描画する残りフレーム数
+
+
 // ======= Globals =======
 let m = [], f = [];
 let timex = 0.0, timey = 1000.0;
@@ -49,17 +52,33 @@ function setup(){
   background(255);
   noStroke();
   resetSketch();
+  pixelDensity(1);  // 高DPR端末でのメモリ節約（任意だが推奨）
+
 }
 
 function draw(){
   // 1フレームで全クラスター分描画（呼ぶたびに形と位置が変わる）
-  for(let i=0;i<centers.length;i++) stepSystem(m,f);
-
-  if(frameCount > 400){
-    noLoop();
-  }
+  for (let i = 0; i < centers.length; i++) stepSystem(m, f);
+  if (--framesToDraw <= 0) noLoop();
+  
   console.log(frameCount)
 }
+
+function resumeRender(n = 200){   // 復帰後にnフレームだけ描き直す
+  framesToDraw = n;
+  loop();
+}
+
+// バックグラウンド→フォアグラウンド
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) resumeRender(400);
+});
+
+// iOS Safari の bfcache 復帰にも対応
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) resumeRender(400);
+});
+
 
 function windowResized(){
   resizeCanvas(windowWidth, windowHeight);
