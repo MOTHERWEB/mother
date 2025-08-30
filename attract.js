@@ -83,6 +83,7 @@ window.addEventListener('pageshow', (e) => {
 function windowResized(){
   resizeCanvas(windowWidth, windowHeight);
   resetCenters(); // サイズ変更に応じて再配置
+  resumeRender(400); 
 }
 
 function mousePressed(){ resetCenters(); }
